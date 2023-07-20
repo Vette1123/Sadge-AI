@@ -2,6 +2,7 @@ import '@/styles/globals.css'
 
 import type { Metadata } from 'next'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { ClerkProvider } from '@clerk/nextjs'
 
 import { siteConfig } from '@/config/site'
 import { fontSans } from '@/lib/fonts'
@@ -42,11 +43,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex min-h-screen flex-col">
-              <SiteHeader />
-              <div className="flex-1">{children}</div>
-            </div>
-            <TailwindIndicator />
+            <ClerkProvider>
+              {children}
+              <TailwindIndicator />
+            </ClerkProvider>
           </ThemeProvider>
         </body>
       </html>

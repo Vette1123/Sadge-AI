@@ -9,3 +9,9 @@ export const fontMono = FontMono({
   subsets: ['latin'],
   variable: '--font-mono',
 })
+
+export const montserrat = FontSans({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  weight: '600',
+})
