@@ -4,7 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 
-import { tools } from '@/lib/constants'
+import { dashboardTools } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 
@@ -22,7 +22,7 @@ function DashboardPage() {
         </p>
       </div>
       <div className="space-y-4 px-4 md:px-20 lg:px-32">
-        {tools.map((tool) => (
+        {dashboardTools.map((tool) => (
           <Card
             onClick={() => router.push(tool.href)}
             key={tool.href}

@@ -1,13 +1,13 @@
 import '@/styles/globals.css'
 
 import type { Metadata } from 'next'
+import Toaster from '@/providers/sonner-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { ClerkProvider } from '@clerk/nextjs'
 
 import { siteConfig } from '@/config/site'
 import { fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
-import { SiteHeader } from '@/components/site-header'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 
 export const metadata: Metadata = {
@@ -48,6 +48,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <TailwindIndicator />
             </ClerkProvider>
           </ThemeProvider>
+          <Toaster />
         </body>
       </html>
     </>
