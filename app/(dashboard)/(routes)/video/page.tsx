@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { Music } from 'lucide-react'
+import { FileAudio } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -24,27 +24,26 @@ import { Loader } from '@/components/loader'
 
 import { formSchema } from './constants'
 
-function MusicPage() {
-  const [music, setMusic] = useState<string>('')
+const VideoPage = () => {
   const router = useRouter()
-  type FormValues = z.infer<typeof formSchema>
+  const [video, setVideo] = useState<string>()
 
-  const form = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: '',
     },
   })
+
   const isLoading = form.formState.isSubmitting
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setMusic('')
+      setVideo(undefined)
 
-      const response = await axios.post('/api/music', values)
-      console.log(response)
+      const response = await axios.post('/api/video', values)
 
-      setMusic(response.data.audio)
+      setVideo(response.data[0])
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) {
@@ -56,20 +55,21 @@ function MusicPage() {
       router.refresh()
     }
   }
+
   return (
-    <>
+    <div>
       <Heading
-        description="Turn your prompt into a music"
-        title="Music Generation"
-        icon={Music}
-        iconColor="text-emerald-500"
-        bgColor="bg-emerald-500/10"
+        title="Video Generation"
+        description="Turn your prompt into video."
+        icon={FileAudio}
+        iconColor="text-orange-700"
+        bgColor="bg-orange-700/10"
       />
       <div className="px-4 lg:px-8">
         <Form {...form}>
           <form
-            className="grid w-full grid-cols-12 gap-2 rounded-lg border p-4 px-3 focus-within:shadow-sm md:px-6"
             onSubmit={form.handleSubmit(onSubmit)}
+            className="grid w-full grid-cols-12 gap-2 rounded-lg border p-4 px-3 focus-within:shadow-sm md:px-6"
           >
             <FormField
               control={form.control}
@@ -103,15 +103,18 @@ function MusicPage() {
             <Loader />
           </div>
         )}
-        {!music && !isLoading && <Empty label="No music generated." />}
-        {music && (
-          <audio controls className="mt-8 w-full">
-            <source src={music} />
-          </audio>
+        {!video && !isLoading && <Empty label="No video files generated." />}
+        {video && (
+          <video
+            controls
+            className="mt-8 aspect-video w-full rounded-lg border bg-black"
+          >
+            <source src={video} />
+          </video>
         )}
       </div>
-    </>
+    </div>
   )
 }
 
-export default MusicPage
+export default VideoPage

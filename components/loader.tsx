@@ -6,7 +6,9 @@ export const Loader = () => {
       <div className="relative h-10 w-10 animate-spin">
         <Image alt="Logo" src="/assets/logo.png" fill />
       </div>
-      <p className="text-sm text-muted-foreground">Genius is thinking...</p>
+      <p className="text-sm text-muted-foreground">
+        Sadge, we are generating the best stuff for you.
+      </p>
     </div>
   )
 }

@@ -47,6 +47,7 @@ const PhotoPage = () => {
       setPhotos([])
 
       const response = await axios.post('/api/image', values)
+      console.log('response', response)
 
       const urls = response.data.map((image: { url: string }) => image.url)
 
@@ -167,7 +168,7 @@ const PhotoPage = () => {
           {photos.map((src) => (
             <Card key={src} className="overflow-hidden rounded-lg">
               <div className="relative aspect-square">
-                <Image fill alt="Generated Image" src={src} />
+                <Image fill alt="Generated Image" src={src} loading="lazy" />
               </div>
               <CardFooter className="p-2">
                 <Button
