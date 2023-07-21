@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { MessageSquare } from 'lucide-react'
+import { Code } from 'lucide-react'
 import { ChatCompletionRequestMessage } from 'openai'
 import { useForm } from 'react-hook-form'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
@@ -29,7 +29,7 @@ import { UserAvatar } from '@/components/user-avatar'
 
 import { formSchema } from './constants'
 
-function ConversationPage() {
+function CodePage() {
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const router = useRouter()
   type FormValues = z.infer<typeof formSchema>
@@ -50,7 +50,7 @@ function ConversationPage() {
       }
       const newMessages = [...messages, userMessage]
 
-      const response = await axios.post('/api/conversation', {
+      const response = await axios.post('/api/code', {
         messages: newMessages,
       })
       setMessages((current) => [...current, userMessage, response.data])
@@ -69,11 +69,11 @@ function ConversationPage() {
   return (
     <>
       <Heading
-        description="Chat with Sadge AI to generate images, videos, music, code, and more!"
-        title="Conversation"
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        description="Generate code with Sadge AI."
+        title="Code Generation"
+        icon={Code}
+        iconColor="text-green-700"
+        bgColor="bg-green-700/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -141,15 +141,6 @@ function ConversationPage() {
                     code: ({ node, ...props }) => (
                       <code className="rounded-lg bg-black/10 p-1" {...props} />
                     ),
-                    a: ({ node, ...props }) => (
-                      <a className="text-blue-500 hover:underline" {...props} />
-                    ),
-                    article: ({ node, ...props }) => (
-                      <article
-                        className="text-blue-500 hover:underline"
-                        {...props}
-                      />
-                    ),
                   }}
                   className="overflow-hidden text-sm leading-7"
                 >
@@ -164,4 +155,4 @@ function ConversationPage() {
   )
 }
 
-export default ConversationPage
+export default CodePage

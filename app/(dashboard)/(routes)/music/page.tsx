@@ -4,14 +4,12 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { MessageSquare } from 'lucide-react'
+import { Music } from 'lucide-react'
 import { ChatCompletionRequestMessage } from 'openai'
 import { useForm } from 'react-hook-form'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -21,16 +19,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { BotAvatar } from '@/components/bot-avatar'
 import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
-import { UserAvatar } from '@/components/user-avatar'
 
 import { formSchema } from './constants'
 
-function ConversationPage() {
-  const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
+function MusicPage() {
+  const [music, setMusic] = useState<string>('')
   const router = useRouter()
   type FormValues = z.infer<typeof formSchema>
 
@@ -44,23 +40,18 @@ function ConversationPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const userMessage: ChatCompletionRequestMessage = {
-        role: 'user',
-        content: values.prompt,
-      }
-      const newMessages = [...messages, userMessage]
+      setMusic('')
 
-      const response = await axios.post('/api/conversation', {
-        messages: newMessages,
-      })
-      setMessages((current) => [...current, userMessage, response.data])
+      const response = await axios.post('/api/music', values)
+      console.log(response)
 
+      setMusic(response.data.audio)
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) {
         // proModal.onOpen()
       } else {
-        toast.error(error.message)
+        toast.error('Something went wrong.')
       }
     } finally {
       router.refresh()
@@ -69,11 +60,11 @@ function ConversationPage() {
   return (
     <>
       <Heading
-        description="Chat with Sadge AI to generate images, videos, music, code, and more!"
-        title="Conversation"
-        icon={MessageSquare}
-        iconColor="text-violet-500"
-        bgColor="bg-violet-500/10"
+        description="Turn your prompt into a music"
+        title="Music Generation"
+        icon={Music}
+        iconColor="text-emerald-500"
+        bgColor="bg-emerald-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -91,7 +82,7 @@ function ConversationPage() {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent dark:disabled:bg-transparent"
                         disabled={isLoading}
-                        placeholder="How do I calculate the radius of a circle?"
+                        placeholder="A song about a dog"
                         {...field}
                       />
                     </FormControl>
@@ -116,47 +107,9 @@ function ConversationPage() {
               <Loader />
             </div>
           )}
-          {messages.length === 0 && !isLoading && (
-            <Empty label="No conversation started." />
-          )}
+          {!music && !isLoading && <Empty label="No music generated." />}
           <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.content}
-                className={cn(
-                  'flex w-full items-start gap-x-8 rounded-lg p-8',
-                  message.role === 'user'
-                    ? 'border border-black/10 bg-white dark:bg-black dark:bg-opacity-10'
-                    : 'bg-muted'
-                )}
-              >
-                {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className="my-2 w-full overflow-auto rounded-lg bg-black/10 p-2">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ node, ...props }) => (
-                      <code className="rounded-lg bg-black/10 p-1" {...props} />
-                    ),
-                    a: ({ node, ...props }) => (
-                      <a className="text-blue-500 hover:underline" {...props} />
-                    ),
-                    article: ({ node, ...props }) => (
-                      <article
-                        className="text-blue-500 hover:underline"
-                        {...props}
-                      />
-                    ),
-                  }}
-                  className="overflow-hidden text-sm leading-7"
-                >
-                  {message.content || ''}
-                </ReactMarkdown>
-              </div>
-            ))}
+            {/* music here */}
           </div>
         </div>
       </div>
@@ -164,4 +117,4 @@ function ConversationPage() {
   )
 }
 
-export default ConversationPage
+export default MusicPage

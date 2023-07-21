@@ -12,7 +12,7 @@ function DashboardPage() {
   const router = useRouter()
 
   return (
-    <div>
+    <>
       <div className="mb-8 space-y-4">
         <h2 className="text-center text-2xl font-bold md:text-4xl">
           Explore the power of Sadge AI
@@ -38,7 +38,7 @@ function DashboardPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </>
   )
 }
 
