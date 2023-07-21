@@ -72,7 +72,7 @@ function SideBar({ apiLimitCount = 0, isPro = false }: SideBarProps) {
   return (
     <div className="flex h-full flex-col space-y-4 bg-[#111827] py-4 text-white">
       <div className="flex-1 px-3 py-2">
-        <Link href="/dashboard" className="mb-14 flex items-center pl-3">
+        <Link href="/dashboard" className="mb-14 flex items-center pl-3 w-fit">
           <div className="relative mr-4 h-8 w-8">
             <Image fill src="/assets/logo.png" alt="logo" />
           </div>

@@ -80,7 +80,7 @@ const VideoPage = () => {
                     <Input
                       className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent dark:disabled:bg-transparent"
                       disabled={isLoading}
-                      placeholder="A song about a dog"
+                      placeholder="Sadge PepeHands"
                       {...field}
                     />
                   </FormControl>

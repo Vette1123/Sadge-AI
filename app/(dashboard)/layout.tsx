@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { checkIsWithinLimit, getApiLimitCount } from '@/lib/api-limit'
+import { getApiLimitCount } from '@/lib/api-limit'
 import { checkSubscription } from '@/lib/subscription'
 import SideBar from '@/components/sidebar'
-import { SiteHeader } from '@/components/site-header'
+import SiteHeader from '@/components/site-header'
 
 async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const apiLimitCount = await getApiLimitCount()
