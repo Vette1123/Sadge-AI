@@ -1,6 +1,7 @@
 import '@/styles/globals.css'
 
 import type { Metadata } from 'next'
+import { ModalProvider } from '@/providers/modal-provider'
 import Toaster from '@/providers/sonner-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { ClerkProvider } from '@clerk/nextjs'
@@ -8,7 +9,6 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { siteConfig } from '@/config/site'
 import { fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
-import { TailwindIndicator } from '@/components/tailwind-indicator'
 
 export const metadata: Metadata = {
   title: {
@@ -43,12 +43,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ClerkProvider>
-              {children}
-              <TailwindIndicator />
-            </ClerkProvider>
+            <ClerkProvider>{children}</ClerkProvider>
           </ThemeProvider>
           <Toaster />
+          <ModalProvider />
         </body>
       </html>
     </>

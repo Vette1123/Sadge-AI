@@ -16,6 +16,7 @@ import {
 
 import { montserrat } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
+import { FreeCounter } from '@/components/free-counter'
 
 const sideBarRoutes = [
   {
@@ -61,7 +62,12 @@ const sideBarRoutes = [
   },
 ]
 
-function SideBar() {
+interface SideBarProps {
+  apiLimitCount: number
+  isPro: boolean
+}
+
+function SideBar({ apiLimitCount = 0, isPro = false }: SideBarProps) {
   const pathname = usePathname()
   return (
     <div className="flex h-full flex-col space-y-4 bg-[#111827] py-4 text-white">
@@ -94,6 +100,7 @@ function SideBar() {
           ))}
         </div>
       </div>
+      <FreeCounter apiLimitCount={apiLimitCount} isPro={isPro} />
     </div>
   )
 }
