@@ -3,15 +3,13 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
 import { MessageSquare } from 'lucide-react'
 import { ChatCompletionRequestMessage } from 'openai'
 import { useForm } from 'react-hook-form'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { cn } from '@/lib/utils'
+import { handleAPICall } from '@/lib/handleAPICall'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -21,16 +19,16 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { BotAvatar } from '@/components/bot-avatar'
+import ChatWindow from '@/components/chat-window'
 import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
-import { Loader } from '@/components/loader'
-import { UserAvatar } from '@/components/user-avatar'
 
 import { formSchema } from './constants'
 
 function ConversationPage() {
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
+  console.log('messages', messages)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const router = useRouter()
   type FormValues = z.infer<typeof formSchema>
 
@@ -40,20 +38,41 @@ function ConversationPage() {
       prompt: '',
     },
   })
-  const isLoading = form.formState.isSubmitting
 
   const onSubmit = async (values: FormValues) => {
+    if (isLoading)
+      return toast.error(
+        'Please wait for the current message to finish streaming.'
+      )
     try {
+      setIsLoading(true)
       const userMessage: ChatCompletionRequestMessage = {
         role: 'user',
-        content: values.prompt,
+        content: values.prompt.trim(),
       }
-      const newMessages = [...messages, userMessage]
+      const assistantMessage: ChatCompletionRequestMessage = {
+        role: 'assistant',
+        content: '',
+      }
+      const newMessages = [...messages, userMessage, assistantMessage]
 
-      const response = await axios.post('/api/conversation', {
-        messages: newMessages,
+      const userMessages = newMessages.filter(
+        (message) => message.role === 'user'
+      )
+      const assistantMessages = newMessages.filter(
+        (message) => message.role === 'assistant'
+      )
+
+      setMessages(newMessages)
+
+      const test = await handleAPICall({
+        setMessages,
+        apiURL: '/api/conversation',
+        assistantMessages,
+        userMessages,
       })
-      setMessages((current) => [...current, userMessage, response.data])
+
+      console.log('test', test)
 
       form.reset()
     } catch (error: any) {
@@ -63,6 +82,7 @@ function ConversationPage() {
         toast.error(error.message)
       }
     } finally {
+      setIsLoading(false)
       router.refresh()
     }
   }
@@ -111,59 +131,10 @@ function ConversationPage() {
           </Form>
         </div>
         <div className="mt-4 space-y-4">
-          {isLoading && (
-            <div className="flex w-full items-center justify-center rounded-lg bg-muted p-8">
-              <Loader />
-            </div>
-          )}
           {messages.length === 0 && !isLoading && (
             <Empty label="No conversation started." />
           )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.content}
-                className={cn(
-                  'flex w-full items-start gap-x-8 rounded-lg p-8',
-                  message.role === 'user'
-                    ? 'border border-black/10 bg-white dark:bg-black dark:bg-opacity-10'
-                    : 'bg-muted'
-                )}
-              >
-                {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className="my-2 w-full overflow-auto rounded-lg bg-black/10 p-2">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ node, ...props }) => (
-                      <code className="rounded-lg bg-black/10 p-1" {...props} />
-                    ),
-                    a: ({ node, ...props }) => (
-                      <a className="text-blue-500 hover:underline" {...props} />
-                    ),
-                    li: ({ node, ...props }) => (
-                      <li className="ml-4 list-disc" {...props} />
-                    ),
-                    ol: ({ node, ...props }) => (
-                      <ol className="ml-4 list-decimal" {...props} />
-                    ),
-                    article: ({ node, ...props }) => (
-                      <article
-                        className="text-blue-500 hover:underline"
-                        {...props}
-                      />
-                    ),
-                  }}
-                  className="overflow-hidden text-sm leading-7"
-                >
-                  {message.content || ''}
-                </ReactMarkdown>
-              </div>
-            ))}
-          </div>
+          {messages.length > 0 && <ChatWindow messages={messages} />}
         </div>
       </div>
     </>

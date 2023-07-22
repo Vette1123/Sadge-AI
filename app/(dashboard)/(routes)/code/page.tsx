@@ -25,7 +25,7 @@ import { BotAvatar } from '@/components/bot-avatar'
 import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
-import { UserAvatar } from '@/components/user-avatar'
+import UserAvatar from '@/components/user-avatar'
 
 import { formSchema } from './constants'
 
