@@ -144,6 +144,12 @@ function ConversationPage() {
                     a: ({ node, ...props }) => (
                       <a className="text-blue-500 hover:underline" {...props} />
                     ),
+                    li: ({ node, ...props }) => (
+                      <li className="ml-4 list-disc" {...props} />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol className="ml-4 list-decimal" {...props} />
+                    ),
                     article: ({ node, ...props }) => (
                       <article
                         className="text-blue-500 hover:underline"

@@ -5,6 +5,9 @@ import { Configuration, OpenAIApi } from 'openai'
 import { checkIsWithinLimit, incrementApiLimit } from '@/lib/api-limit'
 import { checkSubscription } from '@/lib/subscription'
 
+export const runtime = 'edge'
+export const preferredRegion = 'auto'
+
 const configuration = new Configuration({
   apiKey: process.env.OPEN_AI_API_KEY as string,
 })

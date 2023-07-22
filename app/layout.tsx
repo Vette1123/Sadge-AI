@@ -2,7 +2,7 @@ import '@/styles/globals.css'
 
 import type { Metadata } from 'next'
 import { ModalProvider } from '@/providers/modal-provider'
-import Toaster from '@/providers/sonner-provider'
+import { Toaster } from '@/providers/sonner-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { ClerkProvider } from '@clerk/nextjs'
 

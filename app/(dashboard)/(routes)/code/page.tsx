@@ -138,6 +138,12 @@ function CodePage() {
                         <pre {...props} />
                       </div>
                     ),
+                    li: ({ node, ...props }) => (
+                      <li className="ml-4 list-disc" {...props} />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol className="ml-4 list-decimal" {...props} />
+                    ),
                     code: ({ node, ...props }) => (
                       <code className="rounded-lg bg-black/10 p-1" {...props} />
                     ),

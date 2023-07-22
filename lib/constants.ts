@@ -1,6 +1,6 @@
 import { Code, ImageIcon, MessageSquare, Music, VideoIcon } from 'lucide-react'
 
-export const dashboardTools = [
+const dashboardTools = [
   {
     label: 'Conversation',
     icon: MessageSquare,
@@ -37,4 +37,22 @@ export const dashboardTools = [
     href: '/code',
   },
 ]
-export const MAX_FREE_COUNTS = 10
+const MAX_FREE_COUNTS = 10
+
+const CONVERSATION_PROMPT =
+  'You are an ai assistant, you are here to help people with their problems, you are a friendly ai assistant giving people advice on their problems.'
+
+const EVENT_STREAM_HEADERS = 'text/event-stream'
+const APPLICATION_JSON_HEADERS = 'application/json'
+const USER = 'user'
+const ASSISTANT = 'assistant'
+
+export {
+  dashboardTools,
+  MAX_FREE_COUNTS,
+  CONVERSATION_PROMPT,
+  EVENT_STREAM_HEADERS,
+  APPLICATION_JSON_HEADERS,
+  USER,
+  ASSISTANT,
+}
