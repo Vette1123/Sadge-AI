@@ -64,6 +64,7 @@ function ConversationPage() {
         assistantMessages,
         userMessages,
         setIsLoading,
+        router,
       })
 
       form.reset()

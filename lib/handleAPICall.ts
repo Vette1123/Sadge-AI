@@ -1,3 +1,4 @@
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { ChatCompletionRequestMessage } from 'openai'
 import { toast } from 'sonner'
@@ -12,6 +13,7 @@ interface Props {
   userMessages: ChatCompletionRequestMessage[]
   assistantMessages: ChatCompletionRequestMessage[]
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  router: AppRouterInstance
 }
 
 export const handleAPICall = async ({
@@ -20,6 +22,7 @@ export const handleAPICall = async ({
   userMessages,
   assistantMessages,
   setIsLoading,
+  router,
 }: Props) => {
   let currentStreamedText = ''
 
@@ -77,5 +80,6 @@ export const handleAPICall = async ({
     )
   } finally {
     setIsLoading(false)
+    router.refresh()
   }
 }
