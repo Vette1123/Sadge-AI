@@ -6,6 +6,7 @@ import { ModalProvider } from '@/providers/modal-provider'
 import { Toaster } from '@/providers/sonner-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { ClerkProvider } from '@clerk/nextjs'
+import { Analytics } from '@vercel/analytics/react'
 
 import { siteConfig } from '@/config/site'
 import { fontSans } from '@/lib/fonts'
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </ThemeProvider>
           <Toaster />
           <CrispProvider />
+          <Analytics />
           <ModalProvider />
         </body>
       </html>
