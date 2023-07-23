@@ -3,15 +3,13 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
-import { Code } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { ChatCompletionRequestMessage } from 'openai'
 import { useForm } from 'react-hook-form'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { toast } from 'sonner'
-import * as z from 'zod'
 
-import { cn } from '@/lib/utils'
+import { handleAPICall } from '@/lib/handleAPICall'
+import { useProModal } from '@/hooks/use-modal'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -21,17 +19,17 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { MemoizedChatAvatar } from '@/components/chat-avatar'
+import ChatWindow from '@/components/chat-window'
 import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
-import { Loader } from '@/components/loader'
 
-import { formSchema } from './constants'
+import { formSchema, FormValues } from './constants'
 
-function CodePage() {
+function ConversationPage() {
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const proModal = useProModal()
   const router = useRouter()
-  type FormValues = z.infer<typeof formSchema>
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -39,25 +37,39 @@ function CodePage() {
       prompt: '',
     },
   })
-  const isLoading = form.formState.isSubmitting
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const userMessage: ChatCompletionRequestMessage = {
-        role: 'user',
-        content: values.prompt,
-      }
-      const newMessages = [...messages, userMessage]
+      const newMessages = [
+        ...messages,
+        {
+          role: 'user',
+          content: values.prompt.trim(),
+        } as ChatCompletionRequestMessage,
+        { role: 'assistant', content: '' } as ChatCompletionRequestMessage,
+      ]
 
-      const response = await axios.post('/api/code', {
-        messages: newMessages,
+      const userMessages = newMessages.filter(
+        (message) => message.role === 'user'
+      )
+      const assistantMessages = newMessages.filter(
+        (message) => message.role === 'assistant'
+      )
+
+      setMessages(newMessages)
+
+      handleAPICall({
+        setMessages,
+        apiURL: '/api/code',
+        assistantMessages,
+        userMessages,
+        setIsLoading,
       })
-      setMessages((current) => [...current, userMessage, response.data])
 
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) {
-        // proModal.onOpen()
+        proModal.onOpen()
       } else {
         toast.error(error.message)
       }
@@ -68,96 +80,54 @@ function CodePage() {
   return (
     <>
       <Heading
-        description="Generate code with Sadge AI."
-        title="Code Generation"
-        icon={Code}
+        description="Turn your ideas into code with Sadge AI!"
+        title="Code"
+        icon={MessageSquare}
         iconColor="text-green-700"
         bgColor="bg-green-700/10"
       />
       <div className="px-4 lg:px-8">
-        <div>
-          <Form {...form}>
-            <form
-              className="grid w-full grid-cols-12 gap-2 rounded-lg border p-4 px-3 focus-within:shadow-sm md:px-6"
-              onSubmit={form.handleSubmit(onSubmit)}
+        <Form {...form}>
+          <form
+            className="grid w-full grid-cols-12 gap-2 rounded-lg border p-4 px-3 focus-within:shadow-sm md:px-6"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <FormField
+              control={form.control}
+              name="prompt"
+              render={({ field }) => (
+                <FormItem className="col-span-12 lg:col-span-10">
+                  <FormControl className="m-0 p-0">
+                    <Input
+                      className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent dark:disabled:bg-transparent"
+                      disabled={isLoading}
+                      placeholder="Write a function to calculate the area of a circle."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className="col-span-12 w-full lg:col-span-2"
+              type="submit"
+              disabled={isLoading}
+              size="icon"
             >
-              <FormField
-                control={form.control}
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10">
-                    <FormControl className="m-0 p-0">
-                      <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent dark:disabled:bg-transparent"
-                        disabled={isLoading}
-                        placeholder="How do I calculate the radius of a circle?"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                className="col-span-12 w-full lg:col-span-2"
-                type="submit"
-                disabled={isLoading}
-                size="icon"
-              >
-                Generate
-              </Button>
-            </form>
-          </Form>
-        </div>
+              Generate
+            </Button>
+          </form>
+        </Form>
         <div className="mt-4 space-y-4">
-          {isLoading && (
-            <div className="flex w-full items-center justify-center rounded-lg bg-muted p-8">
-              <Loader />
-            </div>
-          )}
           {messages.length === 0 && !isLoading && (
-            <Empty label="No conversation started." />
+            <Empty label="No code generated yet." />
           )}
-          <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.content}
-                className={cn(
-                  'flex w-full items-start gap-x-8 rounded-lg p-8',
-                  message.role === 'user'
-                    ? 'border border-black/10 bg-white dark:bg-black dark:bg-opacity-10'
-                    : 'bg-muted'
-                )}
-              >
-                <MemoizedChatAvatar isUser={message.role === 'user'} />
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className="my-2 w-full overflow-auto rounded-lg bg-black/10 p-2">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    li: ({ node, ...props }) => (
-                      <li className="ml-4 list-disc" {...props} />
-                    ),
-                    ol: ({ node, ...props }) => (
-                      <ol className="ml-4 list-decimal" {...props} />
-                    ),
-                    code: ({ node, ...props }) => (
-                      <code className="rounded-lg bg-black/10 p-1" {...props} />
-                    ),
-                  }}
-                  className="overflow-hidden text-sm leading-7"
-                >
-                  {message.content || ''}
-                </ReactMarkdown>
-              </div>
-            ))}
-          </div>
+          {messages.length > 0 && <ChatWindow messages={messages} />}
         </div>
       </div>
     </>
   )
 }
 
-export default CodePage
+export default ConversationPage

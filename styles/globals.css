@@ -99,7 +99,7 @@ body,
 /* Style the scrollbar thumb */
 ::-webkit-scrollbar-thumb {
   background-color: #888; /* Set the background color of the thumb */
-  border-radius: 4px; /* Adjust the border radius as needed */
+  border-radius: 0.5rem; /* Roundness of the scroll thumb */
 }
 
 ::-webkit-scrollbar-thumb:hover {

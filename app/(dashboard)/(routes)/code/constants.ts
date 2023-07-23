@@ -10,3 +10,5 @@ export const formSchema = z.object({
       message: 'Prompt must be less than 1000 characters',
     }),
 })
+
+export type FormValues = z.infer<typeof formSchema>

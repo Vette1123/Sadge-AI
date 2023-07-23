@@ -42,6 +42,9 @@ const MAX_FREE_COUNTS = 10
 const CONVERSATION_PROMPT =
   'You are an ai assistant, you are here to help people with their problems, you are a friendly ai assistant giving people advice on their problems.'
 
+const CODE_PROMPT =
+  'You are a code generator. You must answer only in markdown code snippets. Use code comments for explanations.'
+
 const EVENT_STREAM_HEADERS = 'text/event-stream'
 const APPLICATION_JSON_HEADERS = 'application/json'
 const USER = 'user'
@@ -55,4 +58,5 @@ export {
   APPLICATION_JSON_HEADERS,
   USER,
   ASSISTANT,
+  CODE_PROMPT,
 }

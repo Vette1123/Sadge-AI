@@ -1,39 +1,48 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs'
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
+import { toast } from 'sonner'
 
 import { checkIsWithinLimit, incrementApiLimit } from '@/lib/api-limit'
+import {
+  APPLICATION_JSON_HEADERS,
+  CODE_PROMPT,
+  CONVERSATION_PROMPT,
+  EVENT_STREAM_HEADERS,
+} from '@/lib/constants'
+import formatMessages from '@/lib/LLMFormatter'
+import { openAIModel } from '@/lib/openAIModel'
 import { checkSubscription } from '@/lib/subscription'
 
-const configuration = new Configuration({
-  apiKey: process.env.OPEN_AI_API_KEY as string,
-})
+export async function POST(request: NextRequest) {
+  if (!request.body)
+    return new NextResponse(JSON.stringify({ error: 'No body provided' }), {
+      status: 400,
+    })
 
-const openai = new OpenAIApi(configuration)
+  if (request.method !== 'POST')
+    return new NextResponse(
+      JSON.stringify({ error: 'Only POST requests are allowed' }),
+      {
+        status: 400,
+      }
+    )
 
-const instructionMessage: ChatCompletionRequestMessage = {
-  role: 'system',
-  content:
-    'You are a code generator. You must answer only in markdown code snippets. Use code comments for explanations.',
-}
-
-export async function POST(req: Request) {
   try {
     const { userId } = auth()
-    const body = await req.json()
-    const { messages } = body
+    const { userMessages, assistantMessages } = await request.json()
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    if (!configuration.apiKey) {
-      return new NextResponse('OpenAI API Key not configured.', { status: 500 })
-    }
+    const formattedMessages = formatMessages(
+      JSON.parse(userMessages),
+      JSON.parse(assistantMessages),
+      CODE_PROMPT
+    )
 
-    if (!messages) {
-      return new NextResponse('Messages are required', { status: 400 })
-    }
+    const stream = new TransformStream()
+    const isStreaming = request.headers.get('accept') === EVENT_STREAM_HEADERS
 
     const freeTrial = await checkIsWithinLimit()
     const isPro = await checkSubscription()
@@ -45,20 +54,44 @@ export async function POST(req: Request) {
       )
     }
 
-    const response = await openai.createChatCompletion({
-      model: process.env.OPEN_AI_MODEL as string,
-      messages: [instructionMessage, ...messages],
-    })
-
     if (!isPro) {
       await incrementApiLimit()
     }
 
-    return NextResponse.json(response.data.choices[0].message)
-  } catch (error: any) {
+    if (isStreaming) {
+      const model = openAIModel(isStreaming, stream, true)
+
+      model.call(formattedMessages).catch((error: Error) => {
+        toast.error(error.message)
+      })
+
+      return new NextResponse(stream.readable, {
+        headers: {
+          'Content-Type': EVENT_STREAM_HEADERS,
+        },
+      })
+    } else {
+      const model = openAIModel(isStreaming, stream, false)
+
+      try {
+        const completion = await model.call(formattedMessages)
+        return new NextResponse(JSON.stringify(completion), {
+          headers: { 'Content-Type': APPLICATION_JSON_HEADERS },
+        })
+      } catch (error) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Something went wrong with the model' }),
+          {
+            status: 500,
+            headers: { 'Content-Type': APPLICATION_JSON_HEADERS },
+          }
+        )
+      }
+    }
+  } catch (error) {
     return new NextResponse(
-      JSON.stringify({ error: error.message || error.toString() }),
-      { status: 505 }
+      error instanceof Error ? error.message : 'Internal Server Error',
+      { status: 500 }
     )
   }
 }
