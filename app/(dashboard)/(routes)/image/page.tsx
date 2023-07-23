@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
+import { useProModal } from '@/hooks/use-modal'
 import { Button } from '@/components/ui/button'
 import { Card, CardFooter } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
@@ -25,13 +26,19 @@ import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
 
-import { amountOptions, formSchema, resolutionOptions } from './constants'
+import {
+  amountOptions,
+  formSchema,
+  FormValues,
+  resolutionOptions,
+} from './constants'
 
 const PhotoPage = () => {
-  const router = useRouter()
   const [photos, setPhotos] = useState<string[]>([])
+  const proModal = useProModal()
+  const router = useRouter()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: '',
@@ -42,18 +49,18 @@ const PhotoPage = () => {
 
   const isLoading = form.formState.isSubmitting
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       setPhotos([])
 
       const response = await axios.post('/api/image', values)
-      console.log('response', response)
 
       const urls = response.data.map((image: { url: string }) => image.url)
 
       setPhotos(urls)
     } catch (error: any) {
       if (error?.response?.status === 403) {
+        proModal.onOpen()
       } else {
         toast.error('Something went wrong.')
       }
@@ -162,7 +169,7 @@ const PhotoPage = () => {
           </div>
         )}
         {photos.length === 0 && !isLoading && (
-          <Empty label="No images generated." />
+          <Empty label="No images generated yet." />
         )}
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {photos.map((src) => (

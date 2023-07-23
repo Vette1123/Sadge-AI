@@ -1,33 +1,20 @@
-/* eslint-disable tailwindcss/migration-from-tailwind-2 */
 import React from 'react'
 import { ChatCompletionRequestMessage } from 'openai'
 
-import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { BotAvatar } from '@/components/bot-avatar'
-import MarkDown from '@/components/mark-down'
-import UserAvatar from '@/components/user-avatar'
+import ChatMessage from '@/components/chat-message'
 
-function ChatWindow({
-  messages,
-}: {
+interface Props {
   messages: ChatCompletionRequestMessage[]
-}) {
+}
+
+function ChatWindow({ messages }: Props) {
   return (
-    <ScrollArea className="mt-6 gap-y-4 rounded-md border p-4 sm:mt-10">
+    <ScrollArea className="my-6 max-h-[calc(100vh-27rem)] gap-y-4 overflow-y-auto rounded-md border p-4 sm:my-10">
       <div className="flex flex-col-reverse gap-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.content}
-            className={cn(
-              'flex w-full items-start gap-x-8 rounded-lg p-8',
-              message.role === 'user'
-                ? 'border border-black/10 bg-white dark:bg-black dark:bg-opacity-10'
-                : 'bg-muted'
-            )}
-          >
-            {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-            {<MarkDown text={message?.content || ''} />}
+        {messages.map((message, index) => (
+          <div key={index}>
+            <ChatMessage message={message} />
           </div>
         ))}
       </div>

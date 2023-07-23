@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
+import { useProModal } from '@/hooks/use-modal'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -22,13 +23,14 @@ import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
 
-import { formSchema } from './constants'
+import { formSchema, FormValues } from './constants'
 
 const VideoPage = () => {
-  const router = useRouter()
   const [video, setVideo] = useState<string>()
+  const router = useRouter()
+  const proModal = useProModal()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: '',
@@ -37,7 +39,7 @@ const VideoPage = () => {
 
   const isLoading = form.formState.isSubmitting
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       setVideo(undefined)
 
@@ -47,7 +49,7 @@ const VideoPage = () => {
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) {
-        // proModal.onOpen()
+        proModal.onOpen()
       } else {
         toast.error('Something went wrong.')
       }

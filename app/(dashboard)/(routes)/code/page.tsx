@@ -21,11 +21,10 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { BotAvatar } from '@/components/bot-avatar'
+import { MemoizedChatAvatar } from '@/components/chat-avatar'
 import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
-import UserAvatar from '@/components/user-avatar'
 
 import { formSchema } from './constants'
 
@@ -130,7 +129,7 @@ function CodePage() {
                     : 'bg-muted'
                 )}
               >
-                {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
+                <MemoizedChatAvatar isUser={message.role === 'user'} />
                 <ReactMarkdown
                   components={{
                     pre: ({ node, ...props }) => (

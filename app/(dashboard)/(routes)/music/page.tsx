@@ -7,8 +7,8 @@ import axios from 'axios'
 import { Music } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import * as z from 'zod'
 
+import { useProModal } from '@/hooks/use-modal'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -22,12 +22,12 @@ import { Empty } from '@/components/empty'
 import { Heading } from '@/components/heading'
 import { Loader } from '@/components/loader'
 
-import { formSchema } from './constants'
+import { formSchema, FormValues } from './constants'
 
 function MusicPage() {
   const [music, setMusic] = useState<string>('')
+  const proModal = useProModal()
   const router = useRouter()
-  type FormValues = z.infer<typeof formSchema>
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -48,7 +48,7 @@ function MusicPage() {
       form.reset()
     } catch (error: any) {
       if (error?.response?.status === 403) {
-        // proModal.onOpen()
+        proModal.onOpen()
       } else {
         toast.error('Something went wrong.')
       }

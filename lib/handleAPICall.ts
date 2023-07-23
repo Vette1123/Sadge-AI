@@ -11,6 +11,7 @@ interface Props {
   apiURL: string
   userMessages: ChatCompletionRequestMessage[]
   assistantMessages: ChatCompletionRequestMessage[]
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const handleAPICall = async ({
@@ -18,65 +19,63 @@ export const handleAPICall = async ({
   apiURL,
   userMessages,
   assistantMessages,
+  setIsLoading,
 }: Props) => {
   let currentStreamedText = ''
 
   try {
-    const apiCallPromise = new Promise((resolve, reject) => {
-      fetchEventSource(apiURL, {
-        method: 'POST',
-        body: JSON.stringify({
-          assistantMessages: JSON.stringify(assistantMessages),
-          userMessages: JSON.stringify(userMessages),
-        }),
-        headers: { 'Content-Type': APPLICATION_JSON_HEADERS },
-        onmessage(ev) {
-          if (ev.data) {
-            currentStreamedText += ev.data
-          } else {
-            currentStreamedText += '\n'
+    setIsLoading(true)
+    await fetchEventSource(apiURL, {
+      method: 'POST',
+      body: JSON.stringify({
+        assistantMessages: JSON.stringify(assistantMessages),
+        userMessages: JSON.stringify(userMessages),
+      }),
+      headers: { 'Content-Type': APPLICATION_JSON_HEADERS },
+      onmessage(ev) {
+        if (ev.data) {
+          currentStreamedText += ev.data
+        } else {
+          currentStreamedText += '\n'
+        }
+
+        setMessages((prevMessages: ChatCompletionRequestMessage[]) => {
+          const newMessages = [...prevMessages]
+          const lastMessageIndex = newMessages.length - 1
+
+          newMessages[lastMessageIndex] = {
+            ...newMessages[lastMessageIndex],
+            content: currentStreamedText,
           }
 
-          setMessages((prevMessages: ChatCompletionRequestMessage[]) => {
-            const newMessages = [...prevMessages]
-            const lastMessageIndex = newMessages.length - 1
+          return newMessages
+        })
+      },
 
-            newMessages[lastMessageIndex] = {
-              ...newMessages[lastMessageIndex],
-              content: currentStreamedText,
-            }
+      onerror(err) {
+        toast.error(
+          'An error occurred while sending your message. Please try again later.',
+          err.message
+        )
+      },
+      onclose() {
+        setMessages((prevMessages: ChatCompletionRequestMessage[]) => {
+          const newMessages = [...prevMessages]
+          const lastMessageIndex = newMessages.length - 1
 
-            return newMessages
-          })
-        },
-
-        onerror(err) {
-          toast.error(
-            'An error occurred while sending your message. Please try again later.',
-            err.message
-          )
-          reject(err)
-        },
-        onclose() {
-          setMessages((prevMessages: ChatCompletionRequestMessage[]) => {
-            const newMessages = [...prevMessages]
-            const lastMessageIndex = newMessages.length - 1
-
-            newMessages[lastMessageIndex] = {
-              ...newMessages[lastMessageIndex],
-            }
-            resolve(newMessages)
-            return newMessages
-          })
-        },
-      })
+          newMessages[lastMessageIndex] = {
+            ...newMessages[lastMessageIndex],
+          }
+          return newMessages
+        })
+      },
     })
-
-    await Promise.all([apiCallPromise])
   } catch (error: any) {
     toast.error(
       'An error occurred while sending your message. Please try again later.',
       error.message
     )
+  } finally {
+    setIsLoading(false)
   }
 }

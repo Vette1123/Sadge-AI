@@ -14,7 +14,7 @@ async function SiteHeader() {
   const apiLimitCount = await getApiLimitCount()
   const isPro = await checkSubscription()
   return (
-    <header className="sticky top-0 z-40 mb-12 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 mb-6 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MobileSidebar apiLimitCount={apiLimitCount} isPro={isPro} />
         <MainNav />

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 
 function MarkDown({ text }: { text: string }) {
@@ -39,4 +39,4 @@ function MarkDown({ text }: { text: string }) {
   )
 }
 
-export default MarkDown
+export const MemoizedMarkDown = memo(MarkDown)

@@ -17,6 +17,8 @@ export const formSchema = z.object({
   }),
 })
 
+export type FormValues = z.infer<typeof formSchema>
+
 export const amountOptions = [
   {
     label: '1 Image',
