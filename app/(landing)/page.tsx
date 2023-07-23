@@ -1,12 +1,15 @@
-import Link from 'next/link'
+import { LandingContent } from '@/components/landing-content'
+import { LandingHero } from '@/components/landing-hero'
+import { LandingNavbar } from '@/components/landing-navbar'
 
-import { siteConfig } from '@/config/site'
-import { buttonVariants } from '@/components/ui/button'
-
-export default function IndexPage() {
+const LandingPage = () => {
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      Un-protected route
-    </section>
+    <div className="h-full ">
+      <LandingNavbar />
+      <LandingHero />
+      <LandingContent />
+    </div>
   )
 }
+
+export default LandingPage

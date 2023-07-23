@@ -1,6 +1,7 @@
 import '@/styles/globals.css'
 
 import type { Metadata } from 'next'
+import { CrispProvider } from '@/providers/crisp-provider'
 import { ModalProvider } from '@/providers/modal-provider'
 import { Toaster } from '@/providers/sonner-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <ClerkProvider>{children}</ClerkProvider>
           </ThemeProvider>
           <Toaster />
+          <CrispProvider />
           <ModalProvider />
         </body>
       </html>
