@@ -7,6 +7,7 @@ const nextConfig = {
       'cdn.openai.com',
       'images.unsplash.com',
     ],
+    unoptimized: true,
   },
 }
 
